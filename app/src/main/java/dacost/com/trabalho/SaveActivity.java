@@ -45,9 +45,14 @@ public class SaveActivity extends AppCompatActivity {
         txtDescricao = (EditText) findViewById(R.id.txtDescricao);
         txtValor = (EditText) findViewById(R.id.txtValor);
 
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
         this.readBarCode();
     }
 
+    /**
+     * chama a leitura
+     */
     public void readBarCode(){
         IntentIntegrator scanIntegrator = new IntentIntegrator(this);
         scanIntegrator.initiateScan();
@@ -68,33 +73,45 @@ public class SaveActivity extends AppCompatActivity {
 
         //Mostra o voltar na action bar
         getSupportActionBar().setTitle(titulo);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
     }
 
     public void onActivityResult(int requestCode, int resultCode, Intent intent){
         IntentResult scanningResult = IntentIntegrator.parseActivityResult(requestCode, resultCode, intent);
         if(scanningResult != null){
             String barCode = scanningResult.getContents();
-            if(barCode != null){
-                this.processBarCode(barCode);
+            if(barCode != null && !barCode.isEmpty()){
+                try{
+                    this.processBarCode(barCode);
+                }catch (Exception e){
+                    Toast toast = Toast.makeText(getApplicationContext(),
+                            "Ocorreu um erro!", Toast.LENGTH_SHORT);
+                    toast.show();
+//                    super.onBackPressed();
+                }
+
             }else{
                 Toast toast = Toast.makeText(getApplicationContext(),
                         "Leitura Invalida!", Toast.LENGTH_SHORT);
                 toast.show();
-                super.onBackPressed();
+//                super.onBackPressed();
             }
 
         }else{
             Toast toast = Toast.makeText(getApplicationContext(),
                     "Leitura Invalida!", Toast.LENGTH_SHORT);
             toast.show();
-            super.onBackPressed();
+//            super.onBackPressed();
         }
     }
 
+    /**
+     * Busca o produto pelo codigo
+     * @param codProduto
+     */
     private void buscaProduto(String codProduto) {
         SQLiteDatabase db = helper.getReadableDatabase();
-        Cursor cursor = db.rawQuery("SELECT * FROM PRODUTO WHERE codigo = " + codProduto, null);
+        String param[] = new String[]{codProduto};
+        Cursor cursor = db.rawQuery("SELECT * FROM PRODUTO WHERE codigo = ?", param);
         cursor.moveToFirst();
         if(cursor.getCount() == 1){
             txtCodigo.setText(cursor.getString(0));
