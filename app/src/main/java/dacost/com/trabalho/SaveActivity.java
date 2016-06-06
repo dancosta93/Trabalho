@@ -86,21 +86,21 @@ public class SaveActivity extends AppCompatActivity {
                     Toast toast = Toast.makeText(getApplicationContext(),
                             "Ocorreu um erro!", Toast.LENGTH_SHORT);
                     toast.show();
-//                    super.onBackPressed();
+                    finish();
                 }
 
             }else{
                 Toast toast = Toast.makeText(getApplicationContext(),
                         "Leitura Invalida!", Toast.LENGTH_SHORT);
                 toast.show();
-//                super.onBackPressed();
+                finish();
             }
 
         }else{
             Toast toast = Toast.makeText(getApplicationContext(),
                     "Leitura Invalida!", Toast.LENGTH_SHORT);
             toast.show();
-//            super.onBackPressed();
+            finish();
         }
     }
 
