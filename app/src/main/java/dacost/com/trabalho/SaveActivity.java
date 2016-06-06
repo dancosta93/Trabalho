@@ -45,17 +45,22 @@ public class SaveActivity extends AppCompatActivity {
         txtDescricao = (EditText) findViewById(R.id.txtDescricao);
         txtValor = (EditText) findViewById(R.id.txtValor);
 
-        Bundle extras = getIntent().getExtras();
+        this.readBarCode();
+    }
 
-        if (extras != null) {
-            codProduto = extras.getString("codProduto");
-        }
+    public void readBarCode(){
+        IntentIntegrator scanIntegrator = new IntentIntegrator(this);
+        scanIntegrator.initiateScan();
+    }
+
+    private void processBarCode(String barCode){
+        txtCodigo.setText(barCode);
+        this.buscaProduto(barCode);
 
         String titulo = "Novo Produto";
 
-        if (codProduto != null && !codProduto.isEmpty()) {
-            isUpdate = true;
-            this.preencheCampos();
+        if (isUpdate) {
+            codProduto = barCode;
             titulo = "Editar Produto";
         } else {
             btnExcluir.setVisibility(View.GONE);
@@ -64,15 +69,6 @@ public class SaveActivity extends AppCompatActivity {
         //Mostra o voltar na action bar
         getSupportActionBar().setTitle(titulo);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-
-        if(!isUpdate){
-            this.readBarCode();
-        }
-    }
-
-    public void readBarCode(){
-        IntentIntegrator scanIntegrator = new IntentIntegrator(this);
-        scanIntegrator.initiateScan();
     }
 
     public void onActivityResult(int requestCode, int resultCode, Intent intent){
@@ -80,8 +76,7 @@ public class SaveActivity extends AppCompatActivity {
         if(scanningResult != null){
             String barCode = scanningResult.getContents();
             if(barCode != null){
-                txtCodigo.setText(barCode);
-                String scanFormat = scanningResult.getFormatName();
+                this.processBarCode(barCode);
             }else{
                 Toast toast = Toast.makeText(getApplicationContext(),
                         "Leitura Invalida!", Toast.LENGTH_SHORT);
@@ -97,13 +92,16 @@ public class SaveActivity extends AppCompatActivity {
         }
     }
 
-    private void preencheCampos() {
+    private void buscaProduto(String codProduto) {
         SQLiteDatabase db = helper.getReadableDatabase();
-        Cursor cursor = db.rawQuery("SELECT * FROM PRODUTO WHERE id = " + codProduto, null);
+        Cursor cursor = db.rawQuery("SELECT * FROM PRODUTO WHERE codigo = " + codProduto, null);
         cursor.moveToFirst();
-        txtCodigo.setText(cursor.getString(0));
-        txtDescricao.setText(cursor.getString(1));
-        txtValor.setText(String.valueOf(cursor.getDouble(3)));
+        if(cursor.getCount() == 1){
+            txtCodigo.setText(cursor.getString(0));
+            txtDescricao.setText(cursor.getString(1));
+            txtValor.setText(String.valueOf(cursor.getDouble(2)));
+            isUpdate = true;
+        }
         cursor.close();
     }
 
@@ -130,7 +128,7 @@ public class SaveActivity extends AppCompatActivity {
         long resultado = -1;
         if (isUpdate) {
             String where[] = new String[]{codProduto};
-            resultado = db.update("PRODUTO", values, "id = ?", where);
+            resultado = db.update("PRODUTO", values, "codigo = ?", where);
         } else {
             values.put("codigo", txtCodigo.getText().toString());
             resultado = db.insert("PRODUTO", null, values);
@@ -150,7 +148,7 @@ public class SaveActivity extends AppCompatActivity {
         SQLiteDatabase db = helper.getWritableDatabase();
         String where[] = new String[]{codProduto};
 
-        long resultado = db.delete("PRODUTO", "id = ?", where);
+        long resultado = db.delete("PRODUTO", "codigo = ?", where);
 
         if (resultado != -1) {
             Toast.makeText(this, "Excluido com successo!", Toast.LENGTH_SHORT).show();

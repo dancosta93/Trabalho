@@ -24,44 +24,12 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
-
         helper = new DataBaseHelper(this);
-
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent i = new Intent(view.getContext(), SaveActivity.class);
-                startActivity(i);
-            }
-        });
     }
 
     public void readBarCode(View v) {
-        IntentIntegrator scanIntegrator = new IntentIntegrator(this);
-        scanIntegrator.initiateScan();
-    }
-
-    public void onActivityResult(int requestCode, int resultCode, Intent intent) {
-        IntentResult scanningResult = IntentIntegrator.parseActivityResult(requestCode, resultCode, intent);
-        if (scanningResult != null) {
-            String barCode = scanningResult.getContents();
-            if(barCode != null){
-                String scanFormat = scanningResult.getFormatName();
-                Intent i = new Intent(this, SaveActivity.class);
-                intent.putExtra("codProduto", barCode);
-                startActivity(i);
-            }else{
-                Toast toast = Toast.makeText(getApplicationContext(),
-                        "Leitura Invalida!", Toast.LENGTH_SHORT);
-                toast.show();
-            }
-        } else {
-            Toast toast = Toast.makeText(getApplicationContext(),
-                    "Leitura Invalida!", Toast.LENGTH_SHORT);
-            toast.show();
-        }
+        Intent i = new Intent(v.getContext(), SaveActivity.class);
+        startActivity(i);
     }
 
     @Override
