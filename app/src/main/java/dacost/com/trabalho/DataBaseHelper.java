@@ -19,9 +19,9 @@ public class DataBaseHelper extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase db) {
         db.execSQL("CREATE TABLE PRODUTO (" +
-                "id INTEGER PRIMARY KEY UNIQUE NOT NULL, " +
-                "modelo TEXT, " +
-                "valor DOUBLE);");
+                "codigo VARCHAR PRIMARY KEY UNIQUE NOT NULL, " +
+                "descricao TEXT NOT NULL, " +
+                "valor DOUBLE NOT NULL);");
     }
 
     @Override

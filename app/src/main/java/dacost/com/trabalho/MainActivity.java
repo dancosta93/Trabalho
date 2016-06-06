@@ -1,5 +1,6 @@
 package dacost.com.trabalho;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -8,8 +9,14 @@ import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
+
+import com.google.zxing.integration.android.IntentIntegrator;
+import com.google.zxing.integration.android.IntentResult;
 
 public class MainActivity extends AppCompatActivity {
+
+    private DataBaseHelper helper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -18,20 +25,43 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+
+        helper = new DataBaseHelper(this);
+
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+                Intent i = new Intent(view.getContext(), SaveActivity.class);
+                startActivity(i);
             }
         });
     }
 
-    private void readBarCode(){
+    public void readBarCode(View v) {
+        IntentIntegrator scanIntegrator = new IntentIntegrator(this);
+        scanIntegrator.initiateScan();
+    }
 
-
-
+    public void onActivityResult(int requestCode, int resultCode, Intent intent) {
+        IntentResult scanningResult = IntentIntegrator.parseActivityResult(requestCode, resultCode, intent);
+        if (scanningResult != null) {
+            String barCode = scanningResult.getContents();
+            if(barCode != null){
+                String scanFormat = scanningResult.getFormatName();
+                Intent i = new Intent(this, SaveActivity.class);
+                intent.putExtra("codProduto", barCode);
+                startActivity(i);
+            }else{
+                Toast toast = Toast.makeText(getApplicationContext(),
+                        "Leitura Invalida!", Toast.LENGTH_SHORT);
+                toast.show();
+            }
+        } else {
+            Toast toast = Toast.makeText(getApplicationContext(),
+                    "Leitura Invalida!", Toast.LENGTH_SHORT);
+            toast.show();
+        }
     }
 
     @Override
