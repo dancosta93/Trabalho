@@ -4,6 +4,7 @@ import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -17,7 +18,7 @@ import android.widget.Toast;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 
-public class SaveActivity extends AppCompatActivity {
+public class ProdutoActivity extends AppCompatActivity {
 
     private final String TAG = "SaveActivity";
 
@@ -53,12 +54,16 @@ public class SaveActivity extends AppCompatActivity {
     /**
      * chama a leitura
      */
-    public void readBarCode(){
+    public void readBarCode() {
         IntentIntegrator scanIntegrator = new IntentIntegrator(this);
         scanIntegrator.initiateScan();
     }
 
-    private void processBarCode(String barCode){
+    /**
+     * Processa o barcode, atualiza os fields na tela, busca o produto
+     * @param barCode
+     */
+    private void processBarCode(String barCode) {
         txtCodigo.setText(barCode);
         this.buscaProduto(barCode);
 
@@ -75,28 +80,35 @@ public class SaveActivity extends AppCompatActivity {
         getSupportActionBar().setTitle(titulo);
     }
 
-    public void onActivityResult(int requestCode, int resultCode, Intent intent){
+    /**
+     * Processa o retorno do reader
+     * @param requestCode
+     * @param resultCode
+     * @param intent
+     */
+    public void onActivityResult(int requestCode, int resultCode, Intent intent) {
         IntentResult scanningResult = IntentIntegrator.parseActivityResult(requestCode, resultCode, intent);
-        if(scanningResult != null){
-            String barCode = scanningResult.getContents();
-            if(barCode != null && !barCode.isEmpty()){
-                try{
-                    this.processBarCode(barCode);
-                }catch (Exception e){
+        if (scanningResult != null) {
+            String content = scanningResult.getContents();
+            if (content != null && !content.isEmpty()) {
+                try {
+                    Log.d(TAG, "Tipo :" + scanningResult.getFormatName());
+                    this.processBarCode(content); //os bar codes serao os produtos
+                } catch (Exception e) {
                     Toast toast = Toast.makeText(getApplicationContext(),
                             "Ocorreu um erro!", Toast.LENGTH_SHORT);
                     toast.show();
                     finish();
                 }
 
-            }else{
+            } else {
                 Toast toast = Toast.makeText(getApplicationContext(),
                         "Leitura Invalida!", Toast.LENGTH_SHORT);
                 toast.show();
                 finish();
             }
 
-        }else{
+        } else {
             Toast toast = Toast.makeText(getApplicationContext(),
                     "Leitura Invalida!", Toast.LENGTH_SHORT);
             toast.show();
@@ -104,8 +116,10 @@ public class SaveActivity extends AppCompatActivity {
         }
     }
 
+
     /**
      * Busca o produto pelo codigo
+     *
      * @param codProduto
      */
     private void buscaProduto(String codProduto) {
@@ -113,7 +127,7 @@ public class SaveActivity extends AppCompatActivity {
         String param[] = new String[]{codProduto};
         Cursor cursor = db.rawQuery("SELECT * FROM PRODUTO WHERE codigo = ?", param);
         cursor.moveToFirst();
-        if(cursor.getCount() == 1){
+        if (cursor.getCount() == 1) {
             txtCodigo.setText(cursor.getString(0));
             txtDescricao.setText(cursor.getString(1));
             txtValor.setText(String.valueOf(cursor.getDouble(2)));
@@ -134,7 +148,10 @@ public class SaveActivity extends AppCompatActivity {
         return true;
     }
 
-
+    /**
+     * Salva/Atualiza o Produto no DB
+     * @param v
+     */
     public void onSaveClick(View v) {
         SQLiteDatabase db = helper.getWritableDatabase();
 
@@ -153,14 +170,18 @@ public class SaveActivity extends AppCompatActivity {
 
 
         if (resultado != -1) {
-            Toast.makeText(SaveActivity.this, "Registro salvo com sucesso!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(ProdutoActivity.this, "Registro salvo com sucesso!", Toast.LENGTH_SHORT).show();
             this.onBackPressed(); //volta depois de salvar
         } else {
-            Toast.makeText(SaveActivity.this, "Erro ao Salvar!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(ProdutoActivity.this, "Erro ao Salvar!", Toast.LENGTH_SHORT).show();
         }
 
     }
 
+    /**
+     * Deleta o Produto
+     * @param v
+     */
     public void onDeleteClick(View v) {
         SQLiteDatabase db = helper.getWritableDatabase();
         String where[] = new String[]{codProduto};
@@ -171,7 +192,7 @@ public class SaveActivity extends AppCompatActivity {
             Toast.makeText(this, "Excluido com successo!", Toast.LENGTH_SHORT).show();
             super.onBackPressed();
         } else {
-            Toast.makeText(SaveActivity.this, "Erro ao Excluir!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(ProdutoActivity.this, "Erro ao Excluir!", Toast.LENGTH_SHORT).show();
         }
 
     }

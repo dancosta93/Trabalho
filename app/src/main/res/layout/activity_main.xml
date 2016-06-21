@@ -18,7 +18,14 @@
             android:onClick="readBarCode"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Ler Código de Barra"
+            android:text="Buscar Produto (BarCode)"
             android:id="@+id/btnBuscar"/>
+
+        <Button
+            android:onClick="readQrCode"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="QR Code Demo"
+            android:id="@+id/btnQrCode"/>
     </LinearLayout>
 </RelativeLayout>
