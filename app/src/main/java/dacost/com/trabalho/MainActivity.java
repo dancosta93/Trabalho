@@ -91,8 +91,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void processQrCode(String content) {
-        Uri uri = Uri.parse(content);
-        Intent it = new Intent(Intent.ACTION_VIEW, uri);
+        Log.d(TAG, "Content: " + content);
+
+        Intent it = new Intent(Intent.ACTION_VIEW, Uri.parse(content));
         startActivity(it);
     }
 }
